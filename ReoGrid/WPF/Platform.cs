@@ -83,7 +83,7 @@ namespace unvell.ReoGrid.Rendering
 			return null;
 		}
 
-		public static (Typeface, GlyphTypeface) FindTypefaceContainsCharacter(char ch, CultureInfo ci = null)
+		public static (Typeface, GlyphTypeface) FindTypefaceContainsCharacter(char ch, CultureInfo _ = null)
 		{
 			foreach (var font in Fonts.SystemFontFamilies)
 			{
@@ -149,13 +149,16 @@ namespace unvell.ReoGrid.Rendering
 
 				for (int n = 0; n < text.Length; n++)
 				{
-					ushort glyphIndex = glyphTypeface.CharacterToGlyphMap[text[n]];
-					//GlyphIndexes.Add(glyphIndex);
+					ushort glyphIndex = 0;
+					glyphTypeface.CharacterToGlyphMap.TryGetValue(text[n], out glyphIndex);
 
-					double width = glyphTypeface.AdvanceWidths[glyphIndex] * size;
-					//this.TextSizes.Add(width);
+					double advanceWidth = 0;
+					if (!glyphTypeface.AdvanceWidths.TryGetValue(glyphIndex, out advanceWidth))
+					{
+						glyphTypeface.AdvanceWidths.TryGetValue(0, out advanceWidth);
+					}
 
-					totalWidth += width;
+					totalWidth += advanceWidth * size;
 				}
 			}
 

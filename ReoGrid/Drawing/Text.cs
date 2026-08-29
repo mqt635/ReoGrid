@@ -1109,7 +1109,11 @@ namespace unvell.ReoGrid.Drawing.Text
 						System.Windows.FontStretches.Normal);
 
 					System.Windows.Media.GlyphTypeface glyphTypeface;
-					typeface.TryGetGlyphTypeface(out glyphTypeface);
+					if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
+					{
+						var defaultTypeface = new System.Windows.Media.Typeface("Arial");
+						defaultTypeface.TryGetGlyphTypeface(out glyphTypeface);
+					}
 
 					this.fontInfo.Typeface = typeface;
 					this.fontInfo.GlyphTypeface = glyphTypeface;
@@ -1213,33 +1217,21 @@ namespace unvell.ReoGrid.Drawing.Text
 			{
 				char ch = text[n];
 				ushort glyphIndex = 0;
-				var targetGlyphTypeface = glyphTypeface;
 
-				if (targetGlyphTypeface != null && targetGlyphTypeface.CharacterToGlyphMap.TryGetValue(ch, out glyphIndex))
+				if (glyphTypeface != null)
 				{
-					GlyphIndexes.Add(glyphIndex);
-				}
-				else
-				{
-					// current typeface doesn't contains the character, try find another
-					var (otherTypeface, otherGlyphTypeface) = PlatformUtility.FindTypefaceContainsCharacter(ch);
-					if (otherGlyphTypeface != null && otherGlyphTypeface.CharacterToGlyphMap.TryGetValue(ch, out glyphIndex))
-					{
-						targetGlyphTypeface = otherGlyphTypeface;
-						GlyphIndexes.Add(glyphIndex);
-					}
-					else
-					{
-						// fallback to 0 to ensure GlyphIndexes.Count matches text.Length
-						glyphIndex = 0;
-						GlyphIndexes.Add(glyphIndex);
-					}
+					glyphTypeface.CharacterToGlyphMap.TryGetValue(ch, out glyphIndex);
 				}
 
-				double advanceWidth = 0.5d;
-				if (targetGlyphTypeface != null && targetGlyphTypeface.AdvanceWidths.TryGetValue(glyphIndex, out var width))
+				this.GlyphIndexes.Add(glyphIndex);
+
+				double advanceWidth = 0;
+				if (glyphTypeface != null)
 				{
-					advanceWidth = width;
+					if (!glyphTypeface.AdvanceWidths.TryGetValue(glyphIndex, out advanceWidth))
+					{
+						glyphTypeface.AdvanceWidths.TryGetValue(0, out advanceWidth);
+					}
 				}
 
 				this.TextSizes.Add(advanceWidth * size);
