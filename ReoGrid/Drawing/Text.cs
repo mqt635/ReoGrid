@@ -1104,17 +1104,21 @@ namespace unvell.ReoGrid.Drawing.Text
 					fontInfo.LineHeight = font.Size * lineSpacing / emHeight;
 
 #elif WPF
+					var style = PlatformUtility.ToWPFFontStyle(this.fontStyles);
+					var weight = (this.fontStyles & FontStyles.Bold) == FontStyles.Bold ?
+						System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal;
+					var stretch = System.Windows.FontStretches.Normal;
+
 					var typeface = new System.Windows.Media.Typeface(
 						new System.Windows.Media.FontFamily(this.fontName),
-						PlatformUtility.ToWPFFontStyle(this.fontStyles),
-						(this.fontStyles & FontStyles.Bold) == FontStyles.Bold ?
-						System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal,
-						System.Windows.FontStretches.Normal);
+						style, weight, stretch);
 
 					System.Windows.Media.GlyphTypeface glyphTypeface;
 					if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
 					{
-						var defaultTypeface = new System.Windows.Media.Typeface("Arial");
+						var defaultTypeface = new System.Windows.Media.Typeface(
+							new System.Windows.Media.FontFamily("Arial"),
+							style, weight, stretch);
 						if (defaultTypeface.TryGetGlyphTypeface(out glyphTypeface))
 						{
 							typeface = defaultTypeface;
