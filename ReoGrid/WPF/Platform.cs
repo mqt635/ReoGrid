@@ -1,4 +1,4 @@
-﻿/*****************************************************************************
+/*****************************************************************************
  * 
  * ReoGrid - .NET Spreadsheet Control
  * 
@@ -85,23 +85,15 @@ namespace unvell.ReoGrid.Rendering
 
 		public static (Typeface, GlyphTypeface) FindTypefaceContainsCharacter(char ch, CultureInfo ci = null)
 		{
-			if (ci == null)
-			{
-				ci = CultureInfo.CurrentCulture;
-			}
-
 			foreach (var font in Fonts.SystemFontFamilies)
 			{
 				foreach (var typeface in font.GetTypefaces())
 				{
 					if (typeface.TryGetGlyphTypeface(out var glyphTypeface))
 					{
-						if (glyphTypeface.FaceNames.ContainsKey(ci))
+						if (glyphTypeface.CharacterToGlyphMap.ContainsKey(ch))
 						{
-							if (glyphTypeface.CharacterToGlyphMap.ContainsKey(ch))
-							{
-								return (typeface, glyphTypeface);
-							}
+							return (typeface, glyphTypeface);
 						}
 					}
 				}

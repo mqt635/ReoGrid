@@ -1,4 +1,4 @@
-﻿/*****************************************************************************
+/*****************************************************************************
  * 
  * ReoGrid - .NET Spreadsheet Control
  * 
@@ -1212,8 +1212,10 @@ namespace unvell.ReoGrid.Drawing.Text
 			for (int n = 0; n < text.Length; n++)
 			{
 				char ch = text[n];
+				ushort glyphIndex = 0;
+				var targetGlyphTypeface = glyphTypeface;
 
-				if (glyphTypeface.CharacterToGlyphMap.TryGetValue(ch, out var glyphIndex))
+				if (targetGlyphTypeface != null && targetGlyphTypeface.CharacterToGlyphMap.TryGetValue(ch, out glyphIndex))
 				{
 					GlyphIndexes.Add(glyphIndex);
 				}
@@ -1221,15 +1223,26 @@ namespace unvell.ReoGrid.Drawing.Text
 				{
 					// current typeface doesn't contains the character, try find another
 					var (otherTypeface, otherGlyphTypeface) = PlatformUtility.FindTypefaceContainsCharacter(ch);
-					if (otherGlyphTypeface != null)
+					if (otherGlyphTypeface != null && otherGlyphTypeface.CharacterToGlyphMap.TryGetValue(ch, out glyphIndex))
 					{
-						glyphTypeface = otherGlyphTypeface;
-						GlyphIndexes.Add(otherGlyphTypeface.CharacterToGlyphMap[ch]);
-                    }
-                }
+						targetGlyphTypeface = otherGlyphTypeface;
+						GlyphIndexes.Add(glyphIndex);
+					}
+					else
+					{
+						// fallback to 0 to ensure GlyphIndexes.Count matches text.Length
+						glyphIndex = 0;
+						GlyphIndexes.Add(glyphIndex);
+					}
+				}
 
-				double width = glyphTypeface.AdvanceWidths[glyphIndex] * size;
-				this.TextSizes.Add(width);
+				double advanceWidth = 0.5d;
+				if (targetGlyphTypeface != null && targetGlyphTypeface.AdvanceWidths.TryGetValue(glyphIndex, out var width))
+				{
+					advanceWidth = width;
+				}
+
+				this.TextSizes.Add(advanceWidth * size);
 			}
 
 #endif // WINFORM
