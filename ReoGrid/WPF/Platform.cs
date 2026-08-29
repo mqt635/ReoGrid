@@ -83,7 +83,7 @@ namespace unvell.ReoGrid.Rendering
 			return null;
 		}
 
-		public static (Typeface, GlyphTypeface) FindTypefaceContainsCharacter(char ch, CultureInfo _ = null)
+		public static (Typeface, GlyphTypeface) FindTypefaceContainsCharacter(char ch, CultureInfo ci = null)
 		{
 			foreach (var font in Fonts.SystemFontFamilies)
 			{

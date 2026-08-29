@@ -479,13 +479,16 @@ namespace unvell.ReoGrid.Drawing
 #if WINFORM || ANDROID
 						g.PlatformGraphics.DrawString(b.Str, b.FontInfo.Font, lastBrush, tx, ty, this.sf);
 #elif WPF
-						var gr = new System.Windows.Media.GlyphRun(b.FontInfo.GlyphTypeface, 0, false, r.FontSize * 1.33d,
-							new ushort[] { b.GlyphIndex },
-							new System.Windows.Point(tx, ty),
-							new double[] { b.Width }, null, null, null, null,
-							null, null);
+						if (b.FontInfo.GlyphTypeface != null)
+						{
+							var gr = new System.Windows.Media.GlyphRun(b.FontInfo.GlyphTypeface, 0, false, r.FontSize * 1.33d,
+								new ushort[] { b.GlyphIndex },
+								new System.Windows.Point(tx, ty),
+								new double[] { b.Width }, null, null, null, null,
+								null, null);
 
-						g.PlatformGraphics.DrawGlyphRun(lastBrush, gr);
+							g.PlatformGraphics.DrawGlyphRun(lastBrush, gr);
+						}
 #endif // WPF
 					}
 				}
@@ -1112,7 +1115,10 @@ namespace unvell.ReoGrid.Drawing.Text
 					if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
 					{
 						var defaultTypeface = new System.Windows.Media.Typeface("Arial");
-						defaultTypeface.TryGetGlyphTypeface(out glyphTypeface);
+						if (defaultTypeface.TryGetGlyphTypeface(out glyphTypeface))
+						{
+							typeface = defaultTypeface;
+						}
 					}
 
 					this.fontInfo.Typeface = typeface;
